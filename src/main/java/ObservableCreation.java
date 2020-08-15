@@ -1,10 +1,11 @@
 import java.util.Arrays;
 import java.util.List;
 
+import io.reactivex.rxjava3.core.BackpressureStrategy;
+import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Observable;
 
 public class ObservableCreation {
-
 	
 	public static void main(String[] args) {
 		//3 ways to create Observable
@@ -12,11 +13,12 @@ public class ObservableCreation {
 		createUsingIterable();
 		createUsingCreate();
 		
+		createFlowable();
+		convertObservableToFlowable();
+		
 		//Empty vs Never observable
 		createEmptyObservable();
 		createNeverObservable();
-		
-		
 		
 		//Lazy using Callable
 		createLazyCallable();
@@ -46,6 +48,30 @@ public class ObservableCreation {
 			emmiter.onComplete(); //close emmision
 		});
 		observable.subscribe(System.out::println);
+	}
+	
+	private static void createFlowable() {
+		System.out.println("Creating a Flowable");
+		Flowable<Integer> flowable = Flowable.create(emmiter -> {
+			emmiter.onNext(1);
+			emmiter.onNext(2);
+			emmiter.onNext(3);
+			emmiter.onComplete();
+		}, BackpressureStrategy.BUFFER);
+		flowable.subscribe(System.out::println);
+	}
+	
+	private static void convertObservableToFlowable() {
+		System.out.println("Converting Observable to Flowable");
+		Observable<Integer> observable = Observable.create(emmiter -> {
+			emmiter.onNext(1);
+			emmiter.onNext(2);
+			emmiter.onNext(3);
+			emmiter.onNext(4);
+			emmiter.onNext(5);
+			emmiter.onComplete(); //close emmision
+		});
+		observable.toFlowable(BackpressureStrategy.LATEST).subscribe(System.out::println);
 	}
 	
 	private static void createEmptyObservable() {
@@ -81,5 +107,4 @@ public class ObservableCreation {
 	private static int getRuntimeException(){
 		return 1/0;
 	}
-
 }
